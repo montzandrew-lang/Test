@@ -1,10 +1,10 @@
 import "./index.css";
-import { MyComposition } from "./Composition";
+import { ScaleRevealComposition } from "./ScaleReveal";
 
 export const RemotionRoot: React.FC = () => {
   return (
     <>
-      <MyComposition />
+      <ScaleRevealComposition />
     </>
   );
 };
