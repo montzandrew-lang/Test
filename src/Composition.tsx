@@ -1,25 +1,42 @@
-import { CalculateMetadataFunction, Composition } from "remotion";
+import { Composition, staticFile, AbsoluteFill, Img } from "remotion";
+import { loadFont } from "@remotion/google-fonts/ShareTechMono";
+import { DisplayOverlay } from "./DisplayOverlay";
+import {
+  VIDEO_WIDTH,
+  VIDEO_HEIGHT,
+  FPS,
+  DURATION_IN_FRAMES,
+} from "./scaleConfig";
+
+loadFont();
 
 type Props = {};
-
-const calculateMetadata: CalculateMetadataFunction<Props> = () => {
-  return {};
-};
 
 export const MyComposition = () => {
   return (
     <Composition
-      id="MyComp"
-      component={MyComponent}
-      durationInFrames={60}
-      fps={30}
-      width={1280}
-      height={720}
-      calculateMetadata={calculateMetadata}
+      id="ScaleLiar"
+      component={ScaleLiarScene}
+      durationInFrames={DURATION_IN_FRAMES}
+      fps={FPS}
+      width={VIDEO_WIDTH}
+      height={VIDEO_HEIGHT}
     />
   );
 };
 
-export const MyComponent: React.FC<Props> = () => {
-  return null;
+export const ScaleLiarScene: React.FC<Props> = () => {
+  return (
+    <AbsoluteFill style={{ backgroundColor: "#e9e9e6" }}>
+      <Img
+        src={staticFile("scale.png")}
+        style={{
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
+        }}
+      />
+      <DisplayOverlay />
+    </AbsoluteFill>
+  );
 };
