@@ -2,6 +2,7 @@ import "./index.css";
 import { ScaleRevealComposition } from "./ScaleReveal";
 import { GroupSplitComposition } from "./GroupSplit";
 import { CalorieBarsComposition } from "./CalorieBars";
+import { ProgressRevealComposition } from "./ProgressReveal";
 
 export const RemotionRoot: React.FC = () => {
   return (
@@ -9,6 +10,7 @@ export const RemotionRoot: React.FC = () => {
       <ScaleRevealComposition />
       <GroupSplitComposition />
       <CalorieBarsComposition />
+      <ProgressRevealComposition />
     </>
   );
 };

@@ -60,7 +60,7 @@ export const BAR_B_COLOR = "#3ab585"; // solid version of GROUP_B_TINT's hue
 
 export const NUMBER_FONT_SIZE = 32;
 const NUMBER_SIDE_GAP = 18; // px to the right of the bar tip, during growth
-const NUMBER_BENEATH_GAP = 40; // px below the bar's final tip, once settled
+export const NUMBER_BENEATH_GAP = 40; // px below the bar's final tip, once settled
 
 export const SHAKE_MAGNITUDE = 4; // px, on Group B's impact
 const SHAKE_DURATION = 6; // frames
@@ -133,7 +133,9 @@ const StaticGroupLabel: React.FC<{ group: Group }> = ({ group }) => (
   </div>
 );
 
-const StartingScene: React.FC = () => {
+// Exported so later segments can show this composition's starting grid
+// without re-deriving its geometry.
+export const StaticGroupsScene: React.FC = () => {
   const figures = Array.from({ length: GRID_ROWS * GRID_COLS }, (_, i) => ({
     row: Math.floor(i / GRID_COLS),
     col: i % GRID_COLS,
@@ -299,6 +301,79 @@ const Bar: React.FC<{ group: Group }> = ({ group }) => {
   );
 };
 
+// The fully-settled dashed line + both bars + both numbers, no animation —
+// exported so a later segment can show this composition's end state (e.g.
+// to fade it out) without replaying the growth timing.
+export const StaticCalorieBars: React.FC = () => (
+  <>
+    <div
+      style={{
+        position: "absolute",
+        left: LINE_MARGIN_X,
+        right: LINE_MARGIN_X,
+        top: LINE_Y,
+        borderTop: `2px dashed ${LINE_COLOR}`,
+      }}
+    />
+    <div
+      style={{
+        position: "absolute",
+        left: GRID_CENTER_X,
+        top: LINE_Y - 34,
+        transform: "translateX(-50%)",
+        fontFamily:
+          '-apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif',
+        fontSize: 20,
+        fontWeight: 500,
+        letterSpacing: 3,
+        textTransform: "uppercase",
+        color: LINE_COLOR,
+        whiteSpace: "nowrap",
+      }}
+    >
+      {LINE_LABEL}
+    </div>
+    {(["A", "B"] as const).map((group) => {
+      const depth = group === "A" ? BAR_A_DEPTH : BAR_B_DEPTH;
+      const value = group === "A" ? BAR_A_FINAL_VALUE : BAR_B_FINAL_VALUE;
+      const color = group === "A" ? BAR_A_COLOR : BAR_B_COLOR;
+      const x = groupPanelX(group);
+      return (
+        <React.Fragment key={group}>
+          <div
+            style={{
+              position: "absolute",
+              left: x,
+              top: LINE_Y,
+              width: BAR_WIDTH,
+              height: depth,
+              transform: "translateX(-50%)",
+              borderRadius: BAR_WIDTH / 2,
+              background: color,
+            }}
+          />
+          <div
+            style={{
+              position: "absolute",
+              left: x,
+              top: LINE_Y + depth + NUMBER_BENEATH_GAP,
+              transform: "translate(-50%, -50%)",
+              fontFamily:
+                '-apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif',
+              fontSize: NUMBER_FONT_SIZE,
+              fontWeight: 700,
+              color,
+              whiteSpace: "nowrap",
+            }}
+          >
+            {value}
+          </div>
+        </React.Fragment>
+      );
+    })}
+  </>
+);
+
 export const CalorieBars: React.FC = () => {
   const frame = useCurrentFrame();
 
@@ -317,7 +392,7 @@ export const CalorieBars: React.FC = () => {
         style={{ transform: `scale(1.02) translate(${shakeX}px, ${shakeY}px)` }}
       >
         <Background />
-        <StartingScene />
+        <StaticGroupsScene />
         <DashedLine />
         <Bar group="A" />
         <Bar group="B" />
