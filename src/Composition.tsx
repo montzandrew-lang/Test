@@ -29,7 +29,7 @@ export const ScaleLiarScene: React.FC<Props> = () => {
   return (
     <AbsoluteFill style={{ backgroundColor: "#e9e9e6" }}>
       <Img
-        src={staticFile("scale.png")}
+        src={staticFile("scale.jpg")}
         style={{
           width: "100%",
           height: "100%",
