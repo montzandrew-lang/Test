@@ -107,9 +107,9 @@ const rampValue = (frame: number, start: number, end: number, target: number) =>
 // ---------------------------------------------------------------------------
 const loneFigureOrigin = () => {
   const row = 1;
-  const col = 1;
+  const col = 4; // Group B's middle column (B occupies cols 3-5)
   const x =
-    GRID_CENTER_X + (col - (GRID_COLS - 1) / 2) * FIGURE_H_SPACING - SPLIT_OFFSET_X;
+    GRID_CENTER_X + (col - (GRID_COLS - 1) / 2) * FIGURE_H_SPACING + SPLIT_OFFSET_X;
   const y = GRID_CENTER_Y + (row - (GRID_ROWS - 1) / 2) * FIGURE_V_SPACING;
   return { row, col, x, y };
 };
@@ -129,7 +129,7 @@ const Backdrop: React.FC = () => {
   );
 };
 
-const GroupBFading: React.FC = () => {
+const GroupAFading: React.FC = () => {
   const frame = useCurrentFrame();
   const opacity = interpolate(frame, [0, 26], [1, 0], {
     easing: Easing.out(Easing.quad),
@@ -137,12 +137,12 @@ const GroupBFading: React.FC = () => {
     extrapolateRight: "clamp",
   });
   if (opacity <= 0) return null;
-  const { left, top, width, height } = getGroupPanelRect("B");
+  const { left, top, width, height } = getGroupPanelRect("A");
 
   const figures = Array.from({ length: GRID_ROWS * GRID_COLS }, (_, i) => ({
     row: Math.floor(i / GRID_COLS),
     col: i % GRID_COLS,
-  })).filter(({ col }) => col >= GRID_COLS / 2);
+  })).filter(({ col }) => col < GRID_COLS / 2);
 
   return (
     <div style={{ opacity }}>
@@ -154,12 +154,12 @@ const GroupBFading: React.FC = () => {
           width,
           height,
           borderRadius: 32,
-          background: GROUP_B_TINT,
+          background: GROUP_A_TINT,
         }}
       />
       {figures.map(({ row, col }) => {
         const x =
-          GRID_CENTER_X + (col - (GRID_COLS - 1) / 2) * FIGURE_H_SPACING + SPLIT_OFFSET_X;
+          GRID_CENTER_X + (col - (GRID_COLS - 1) / 2) * FIGURE_H_SPACING - SPLIT_OFFSET_X;
         const y = GRID_CENTER_Y + (row - (GRID_ROWS - 1) / 2) * FIGURE_V_SPACING;
         return (
           <div
@@ -173,7 +173,7 @@ const GroupBFading: React.FC = () => {
       <div
         style={{
           position: "absolute",
-          left: groupPanelX("B"),
+          left: groupPanelX("A"),
           top: getGroupLabelY(),
           transform: "translate(-50%, 0)",
           fontFamily: FONT_STACK,
@@ -184,15 +184,15 @@ const GroupBFading: React.FC = () => {
           whiteSpace: "nowrap",
         }}
       >
-        {GROUP_B_LABEL}
+        {GROUP_A_LABEL}
       </div>
     </div>
   );
 };
 
-// Group A: panel + label dissolve, its 11 other figures fade out one by one
+// Group B: panel + label dissolve, its 11 other figures fade out one by one
 // (slow, staggered), the lone figure drifts to its resting place.
-const GroupADissolving: React.FC = () => {
+const GroupBDissolving: React.FC = () => {
   const frame = useCurrentFrame();
   const chromeOpacity = interpolate(frame, [14, F1_END], [1, 0], {
     easing: Easing.out(Easing.quad),
@@ -204,7 +204,7 @@ const GroupADissolving: React.FC = () => {
     row: Math.floor(i / GRID_COLS),
     col: i % GRID_COLS,
   }))
-    .filter(({ col }) => col < GRID_COLS / 2)
+    .filter(({ col }) => col >= GRID_COLS / 2)
     .filter(({ row, col }) => !(row === LONE.row && col === LONE.col));
 
   const staggerCount = others.length; // 11
@@ -217,17 +217,17 @@ const GroupADissolving: React.FC = () => {
           style={{
             position: "absolute",
             ...(() => {
-              const { left, top, width, height } = getGroupPanelRect("A");
+              const { left, top, width, height } = getGroupPanelRect("B");
               return { left, top, width, height };
             })(),
             borderRadius: 32,
-            background: GROUP_A_TINT,
+            background: GROUP_B_TINT,
             opacity: chromeOpacity,
           }}
         />
       )}
       {others.map(({ row, col }, i) => {
-        const x = GRID_CENTER_X + (col - (GRID_COLS - 1) / 2) * FIGURE_H_SPACING - SPLIT_OFFSET_X;
+        const x = GRID_CENTER_X + (col - (GRID_COLS - 1) / 2) * FIGURE_H_SPACING + SPLIT_OFFSET_X;
         const y = GRID_CENTER_Y + (row - (GRID_ROWS - 1) / 2) * FIGURE_V_SPACING;
         const delay = (i / staggerCount) * staggerEnd;
         const opacity = interpolate(frame, [delay, delay + 10], [1, 0], {
@@ -249,7 +249,7 @@ const GroupADissolving: React.FC = () => {
         <div
           style={{
             position: "absolute",
-            left: groupPanelX("A"),
+            left: groupPanelX("B"),
             top: getGroupLabelY(),
             transform: "translate(-50%, 0)",
             fontFamily: FONT_STACK,
@@ -261,7 +261,7 @@ const GroupADissolving: React.FC = () => {
             opacity: chromeOpacity,
           }}
         >
-          {GROUP_A_LABEL}
+          {GROUP_B_LABEL}
         </div>
       )}
     </>
@@ -642,8 +642,8 @@ const Vignette: React.FC = () => {
 const LoneFigureScene: React.FC = () => (
   <>
     <Backdrop />
-    <GroupBFading />
-    <GroupADissolving />
+    <GroupAFading />
+    <GroupBDissolving />
     <LoneFigure />
     <DashedLineAndBars />
     <NegativeMuscleMeter />
