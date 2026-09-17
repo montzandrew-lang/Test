@@ -31,12 +31,16 @@ export const GROUP_B_TINT = "rgba(58,181,133,0.16)"; // soft green
 export const LABEL_FONT_SIZE = 36;
 export const LABEL_GAP = 54; // px from the bottom figure row to the label
 export const LABEL_COLOR = "#3c3c40";
-const PANEL_PADDING = 40; // px of tint panel around each group's figures + label
+export const PANEL_PADDING = 40; // px of tint panel around each group's figures + label
 
-const GROUP_A_LABEL = "GROUP A";
-const GROUP_B_LABEL = "GROUP B";
+// Same studio backdrop reused by later segments for visual continuity.
+export const STUDIO_BACKGROUND =
+  "radial-gradient(120% 90% at 50% 15%, #e9e9ea 0%, #dcdcdd 55%, #d2d2d3 100%)";
 
-type Group = "A" | "B";
+export const GROUP_A_LABEL = "GROUP A";
+export const GROUP_B_LABEL = "GROUP B";
+
+export type Group = "A" | "B";
 
 const staggerDelay = (row: number, col: number) => (row + col) * 0.9;
 
@@ -63,7 +67,7 @@ const labelSpringFor = (frame: number) =>
     durationInFrames: 8,
   });
 
-const FigureIcon: React.FC<{ size: number; color: string }> = ({
+export const FigureIcon: React.FC<{ size: number; color: string }> = ({
   size,
   color,
 }) => (
@@ -105,12 +109,35 @@ const Figure: React.FC<{ row: number; col: number }> = ({ row, col }) => {
   );
 };
 
-const groupPanelX = (group: Group) => {
+// Pure geometry helpers, exported so later segments can line up with this
+// grid's final, settled layout without duplicating the numbers.
+export const groupPanelX = (group: Group) => {
   const edgeCol = group === "A" ? (GRID_COLS / 2 - 1) / 2 : GRID_COLS / 2 + (GRID_COLS / 2 - 1) / 2;
   const centerX =
     GRID_CENTER_X + (edgeCol - (GRID_COLS - 1) / 2) * FIGURE_H_SPACING;
   return centerX + (group === "A" ? -SPLIT_OFFSET_X : SPLIT_OFFSET_X);
 };
+
+export const getGroupPanelRect = (group: Group) => {
+  const halfCols = GRID_COLS / 2;
+  const width = (halfCols - 1) * FIGURE_H_SPACING + FIGURE_SIZE + PANEL_PADDING * 2;
+  const top =
+    GRID_CENTER_Y -
+    ((GRID_ROWS - 1) / 2) * FIGURE_V_SPACING -
+    FIGURE_SIZE / 2 -
+    PANEL_PADDING;
+  const height =
+    (GRID_ROWS - 1) * FIGURE_V_SPACING +
+    FIGURE_SIZE / 2 +
+    LABEL_GAP +
+    LABEL_FONT_SIZE * 1.4 +
+    PANEL_PADDING * 2;
+  const centerX = groupPanelX(group);
+  return { left: centerX - width / 2, top, width, height, centerX };
+};
+
+export const getGroupLabelY = () =>
+  GRID_CENTER_Y + ((GRID_ROWS - 1) / 2) * FIGURE_V_SPACING + FIGURE_SIZE / 2 + LABEL_GAP;
 
 const GroupPanel: React.FC<{ group: Group }> = ({ group }) => {
   const frame = useCurrentFrame();
@@ -119,30 +146,16 @@ const GroupPanel: React.FC<{ group: Group }> = ({ group }) => {
     extrapolateRight: "clamp",
   });
 
-  const halfCols = GRID_COLS / 2;
-  const panelWidth =
-    (halfCols - 1) * FIGURE_H_SPACING + FIGURE_SIZE + PANEL_PADDING * 2;
-  const panelTop =
-    GRID_CENTER_Y -
-    ((GRID_ROWS - 1) / 2) * FIGURE_V_SPACING -
-    FIGURE_SIZE / 2 -
-    PANEL_PADDING;
-  const panelHeight =
-    (GRID_ROWS - 1) * FIGURE_V_SPACING +
-    FIGURE_SIZE / 2 +
-    LABEL_GAP +
-    LABEL_FONT_SIZE * 1.4 +
-    PANEL_PADDING * 2;
+  const { left, top, width, height } = getGroupPanelRect(group);
 
   return (
     <div
       style={{
         position: "absolute",
-        left: groupPanelX(group),
-        top: panelTop,
-        width: panelWidth,
-        height: panelHeight,
-        transform: "translateX(-50%)",
+        left,
+        top,
+        width,
+        height,
         borderRadius: 32,
         background: group === "A" ? GROUP_A_TINT : GROUP_B_TINT,
         opacity,
@@ -162,11 +175,7 @@ const GroupLabel: React.FC<{ group: Group }> = ({ group }) => {
     { extrapolateRight: "clamp" },
   );
 
-  const y =
-    GRID_CENTER_Y +
-    ((GRID_ROWS - 1) / 2) * FIGURE_V_SPACING +
-    FIGURE_SIZE / 2 +
-    LABEL_GAP;
+  const y = getGroupLabelY();
 
   return (
     <div
@@ -191,13 +200,7 @@ const GroupLabel: React.FC<{ group: Group }> = ({ group }) => {
 };
 
 const Background: React.FC = () => (
-  // Same studio backdrop as the scale segment, for visual continuity.
-  <AbsoluteFill
-    style={{
-      background:
-        "radial-gradient(120% 90% at 50% 15%, #e9e9ea 0%, #dcdcdd 55%, #d2d2d3 100%)",
-    }}
-  />
+  <AbsoluteFill style={{ background: STUDIO_BACKGROUND }} />
 );
 
 export const GroupSplit: React.FC = () => {
