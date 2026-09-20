@@ -4,6 +4,7 @@ import { GroupSplitComposition } from "./GroupSplit";
 import { CalorieBarsComposition } from "./CalorieBars";
 import { ProgressRevealComposition } from "./ProgressReveal";
 import { DeflationComposition } from "./Deflation";
+import { RewardStudyComposition } from "./RewardStudy";
 
 export const RemotionRoot: React.FC = () => {
   return (
@@ -13,6 +14,7 @@ export const RemotionRoot: React.FC = () => {
       <CalorieBarsComposition />
       <ProgressRevealComposition />
       <DeflationComposition />
+      <RewardStudyComposition />
     </>
   );
 };
