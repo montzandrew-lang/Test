@@ -6,6 +6,7 @@ import { ProgressRevealComposition } from "./ProgressReveal";
 import { DeflationComposition } from "./Deflation";
 import { RewardStudyComposition } from "./RewardStudy";
 import { DashboardDemoComposition } from "./DashboardDemo";
+import { ScenesDemoComposition } from "./ScenesDemo";
 
 export const RemotionRoot: React.FC = () => {
   return (
@@ -17,6 +18,7 @@ export const RemotionRoot: React.FC = () => {
       <DeflationComposition />
       <RewardStudyComposition />
       <DashboardDemoComposition />
+      <ScenesDemoComposition />
     </>
   );
 };
